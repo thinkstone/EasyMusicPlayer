@@ -1,132 +1,238 @@
 package fream.com.example.my.musicplayer;
 
+import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
+
+import android.text.AndroidCharacter;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.TranslateAnimation;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+
+import com.balysv.materialmenu.MaterialMenuDrawable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import fream.com.example.my.musicplayer.adapter.MyPagerAdapter;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import fream.com.example.my.musicplayer.fragment.FindFragment;
+import fream.com.example.my.musicplayer.fragment.GuideFragment;
+import fream.com.example.my.musicplayer.fragment.MyFragment;
+import fream.com.example.my.musicplayer.navationviewMenu.SettingMenu;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    private List<View> viewList;
-    private ViewPager viewpager;
-    private TextView textlocal;
-    private TextView textonline;
-    private ImageView imageunderline;
-    private MyPagerAdapter adapter;
-    private int offerset;
-    private int one;
-    private int curPos;
+public class MainActivity extends AppCompatActivity {
+    @Bind(R.id.main_slidingPanellayout)
+    SlidingPaneLayout mSlidingPanelLayout;
+
+    @Bind(R.id.main_sliding_left)
+    NavigationView navigetionView;
+
+    @Bind(R.id.main_tablayout)
+    TabLayout mTablayout;
+
+    @Bind(R.id.main_viewpager)
+    ViewPager mViewPager;
+    @Bind(R.id.bottom_music_playing)
+    LinearLayout mLinearLayout;
+
+    private boolean isOpened = true;
+    private Toolbar mToolBar;
+    private MaterialMenuDrawable materialMenuDrawable;
+    private List<String> listtitle = new ArrayList<>();
+    private List<Fragment> mainFragment = new ArrayList<>();
+    private ViewPagerAdapter adapter;
+    private int lastX;
+    private int lastY;
+    private int dx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_pager);
-
-        //初始化视图
-        initview();
-
-        //计算下划线的位置
-        initUnderline();
-
-        //初始viewpager视图,并将之添加到list中
-        LayoutInflater inflater=LayoutInflater.from(this);
-        initViewPager(inflater);
-
-        //初始化监听
-        initlistener();
-
+        //设置在onCreatentView的下面；
+        ButterKnife.bind(this);
+        //设置ToolBar
+        mToolBar = (Toolbar) findViewById(R.id.main_sliding_right_toolbar);
+        setSupportActionBar(mToolBar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //设置侧边的面板打开和关闭时的ToolBar的动画
+        initToolBar();
+        //设置mSlidingpanellayout的监听
+        initSlidingpanellayout();
+        //设置导航栏
+        initNavigationView();
+        //设置viewpager的相关事件
+        initViewPager();
+        //设置NavigationView的Menu视图
+        initMenuListener();
+        //设置mLinearLayout的监听
+        initLinearLayout();
     }
 
-    private void initUnderline() {
-        DisplayMetrics dm=new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        //屏幕宽度
-        int screenwidth=dm.widthPixels;
-        //图片宽度
-        int bitmapwidth = BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher).getWidth();
-        //开始偏移量
-        offerset=(screenwidth/4-bitmapwidth)/2;
-        //第二个图片的
-        one=offerset*3+bitmapwidth;
-        //初始化imageunderline的位置
-        imageunderline.setX(offerset);
-    }
-
-    private void initViewPager(LayoutInflater inflater) {
-        viewList=new ArrayList<>();;
-        viewList.add(inflater.inflate(R.layout.local_music, null));
-        viewList.add(inflater.inflate(R.layout.online_music,null));
-        adapter=new MyPagerAdapter(viewList);
-        viewpager.setAdapter(adapter);
-        //默认选中第一页
-        viewpager.setCurrentItem(0);
-    }
-    private void initlistener() {
-        textlocal.setOnClickListener(this);
-        textonline.setOnClickListener(this);
-        viewpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+    private void initLinearLayout() {
+        mLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-            @Override
-            public void onPageSelected(int position) {
-                TranslateAnimation animation = null;
-                switch (position) {
-                    case 0:
-                        if(curPos == 1) {
-                            animation = new TranslateAnimation(one,0,0,0);
-                        }else {
-                            animation = new TranslateAnimation(0,one,0,0);
-                        }
-                        break;
-                    case 1:
-                        if(curPos == 0) {
-                            animation = new TranslateAnimation(0,one,0,0);
-                        }else {
-                            animation = new TranslateAnimation(one,0,0,0);
-                        }
-                        break;
-                }
-                curPos = position;
-                animation.setFillAfter(true);
-                animation.setDuration(300);
-                imageunderline.startAnimation(animation);
-            }
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
+            public void onClick(View view) {
+                Intent intent =new Intent(MainActivity.this,PlayingPager.class);
+                startActivity(intent);
             }
         });
     }
 
-    private void initview() {
-        viewpager=(ViewPager)findViewById(R.id.vp_viewpager);
-        imageunderline=(ImageView)findViewById(R.id.iv_underline);
-        textlocal=(TextView)findViewById(R.id.tv_local_music);
-        textonline=(TextView)findViewById(R.id.tv_online_music);
+    private void initMenuListener() {
+        navigetionView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.sliding_setting:
+                        Intent intentsetting = new Intent(MainActivity.this, SettingMenu.class);
+                        startActivity(intentsetting);
+                        break;
+                    case R.id.search_song:
+                        Intent intentsearch = new Intent(MainActivity.this, SettingMenu.class);
+                        startActivity(intentsearch);
+                        break;
+                    case R.id.exit_mode:
+                        System.exit(-1);
+                        break;
+                }
+                return true;
+            }
+        });
     }
+
+
+    private void initViewPager() {
+
+        //向标题的list集合中添加元素
+        listtitle.add("我的");
+        listtitle.add("发现");
+        listtitle.add("推荐");
+
+        //向Fragment的集合中添加元素
+        mainFragment.add(new MyFragment());
+        mainFragment.add(new FindFragment());
+        mainFragment.add(new GuideFragment());
+
+        adapter = new ViewPagerAdapter(getSupportFragmentManager(), listtitle, mainFragment);
+        mViewPager.setAdapter(adapter);
+        mTablayout.setTabMode(TabLayout.MODE_FIXED);
+        //将TabLayout和viewpager关联
+        mTablayout.setupWithViewPager(mViewPager);
+        mTablayout.setTabTextColors(ColorStateList.valueOf(Color.WHITE));
+        mTablayout.setSelectedTabIndicatorHeight(5);
+    }
+
+
+    private void initToolBar() {
+        materialMenuDrawable = new MaterialMenuDrawable(this, Color.WHITE, MaterialMenuDrawable.Stroke.REGULAR);
+        mToolBar.setNavigationIcon(materialMenuDrawable);
+
+        //设置ToolBar的按钮点击事件
+        mToolBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (isOpened) {
+                    mSlidingPanelLayout.closePane();
+                } else {
+                    mSlidingPanelLayout.openPane();
+                }
+            }
+        });
+    }
+
+    private void initNavigationView() {
+        View navagationHeadview = LayoutInflater.from(this).inflate(R.layout.navigation_header_view, null);
+        navigetionView.addHeaderView(navagationHeadview);
+
+    }
+
     @Override
-    public void onClick(View v){
-        switch (v.getId()){
-            case R.id.tv_local_music:
-                viewpager.setCurrentItem(0);
-                break;
-            case R.id.tv_online_music:
-                viewpager.setCurrentItem(1);
-                break;
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        mTablayout.setupWithViewPager(mViewPager);
+            if (mViewPager.getCurrentItem()==0) {
+                switch (ev.getAction()) {
+                    case MotionEvent.ACTION_SCROLL:
+                        lastX = (int) ev.getX();
+                        lastY = (int) ev.getY();
+                        dx = (int) ev.getX() - lastX;
+                        if (dx < 0) {
+                            mSlidingPanelLayout.openPane();
+                            return super.dispatchTouchEvent(ev);
+                        } else {
+
+                            return super.dispatchTouchEvent(ev);
+                        }
+                }
+            }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    private void initSlidingpanellayout() {
+        //设置SlidingPanelLayout的监听
+        mSlidingPanelLayout.setPanelSlideListener(new SlidingPaneLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+                //设置打开时的动画
+                materialMenuDrawable.setTransformationOffset(
+                        MaterialMenuDrawable.AnimationState.BURGER_ARROW,
+                        isOpened ? 2 - slideOffset : slideOffset
+                );
+            }
+
+            @Override
+            public void onPanelOpened(View panel) {
+                isOpened = true;
+            }
+
+            @Override
+            public void onPanelClosed(View panel) {
+                isOpened = false;
+            }
+        });
+    }
+
+    //设置viewpager的FragmentPagerAdapter事件
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private List<String> title = new ArrayList<>();
+        private List<Fragment> listFragment = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager fm, List<String> title, List<Fragment> listFragment) {
+            super(fm);
+            this.title = title;
+            this.listFragment = listFragment;
+        }
+        @Override
+        public Fragment getItem(int position) {
+            return listFragment.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return listFragment.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return title.get(position);
         }
     }
 }

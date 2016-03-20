@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/slide_group1">
+        <item android:id="@+id/sliding_setting" android:title="设置" android:icon="@drawable/menu_settings"></item>
+        <item android:id="@+id/search_song" android:title="扫描歌曲" android:icon="@drawable/menu_search"></item>
+        <item android:id="@+id/exit_mode" android:title="退出" android:icon="@drawable/menu_exit"></item>
+    </group>
+</menu>

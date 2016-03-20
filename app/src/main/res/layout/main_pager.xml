@@ -1,49 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <LinearLayout
-        android:id="@+id/linearlayout"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:gravity="center"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/tv_local_music"
-            android:layout_width="0dp"
-            android:layout_weight="1.5"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:text="本地音乐"
-            android:onClick="onClick"/>
-        <TextView
-            android:id="@+id/tv_online_music"
-            android:layout_width="0dp"
-            android:layout_weight="3"
-            android:textSize="20sp"
-            android:layout_height="wrap_content"
-            android:text="实时音乐"
-            android:onClick="onClick"/>
-    </LinearLayout>
-    <ImageView
-        android:id="@+id/iv_underline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/linearlayout"
-        android:src="@drawable/underline"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:background="#5e00f5"
-        android:layout_below="@+id/iv_underline"
-        />
-    <android.support.v4.view.ViewPager
-        android:id="@+id/vp_viewpager"
+
+    <android.support.v4.widget.SlidingPaneLayout
+        android:id="@+id/main_slidingPanellayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </android.support.v4.view.ViewPager>
+
+        <android.support.design.widget.NavigationView
+            android:id="@+id/main_sliding_left"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:background="#ff3f00"
+            app:itemIconTint="@android:color/white"
+            app:menu="@menu/sliding_menu" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/main_sliding_right_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/actionBarSize"
+                android:background="#ff3f00">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/main_tablayout"
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
+                    android:layout_height="wrap_content"
+                    app:tabIndicatorColor="@android:color/white"/>
+                    <ImageButton
+                        android:id="@+id/main_searchbutton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:src="@drawable/search_alpha"
+                        android:background="#ff3f00"/>
+                </LinearLayout>
+            </android.support.v7.widget.Toolbar>
+            <android.support.v4.view.ViewPager
+                android:id="@+id/main_viewpager"
+                android:layout_below="@+id/main_sliding_right_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"></android.support.v4.view.ViewPager>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:orientation="vertical"
+                android:layout_alignParentBottom="true">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_below="@+id/main_viewpager"
+                android:background="@android:color/white"/>
+            <LinearLayout
+                android:id="@+id/bottom_music_playing"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:orientation="horizontal"
+                android:background="#FF3F00">
+                <TextView
+                    android:id="@+id/tv_textview_song_name"
+                    android:layout_width="0dp"
+                    android:layout_weight="4"
+                    android:text="没有歌曲"
+                    android:gravity="center"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:layout_height="match_parent" />
+                <ImageButton
+                    android:id="@+id/btn_playing_song"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:src="@drawable/bottom_music_play"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </android.support.v4.widget.SlidingPaneLayout>
 </RelativeLayout>
